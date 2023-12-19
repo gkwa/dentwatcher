@@ -66,7 +66,13 @@ const tasksJSONTemplate = `
       "label": "Terminal",
       "type": "shell",
       "command": "bash",
-      "isBackground": false,
+      "options": {
+        "shell": {
+          "executable": "bash",
+		  "args": ["-l", "-c", "bash"]
+        }
+      },
+      "isBackground": true,
       "problemMatcher": []
     }
   ]
