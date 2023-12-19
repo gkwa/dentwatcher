@@ -2,7 +2,6 @@ package dentwatcher
 
 import (
 	"flag"
-	"fmt"
 	"html/template"
 	"log/slog"
 	"os"
@@ -32,7 +31,7 @@ func Execute() int {
 func parseArgs() Options {
 	options := Options{}
 
-	flag.StringVar(&options.LogLevel, "log-level", "info", "Log level (debug, info, warn, error), defult: info")
+	flag.StringVar(&options.LogLevel, "log-level", "info", "Log level (debug, info, warn, error), default: info")
 	flag.StringVar(&options.LogFormat, "log-format", "", "Log format (text or json)")
 	flag.StringVar(&options.FolderPath, "folder", "", "Specify the folder path")
 
@@ -41,20 +40,20 @@ func parseArgs() Options {
 	return options
 }
 
+// https://code.visualstudio.com/docs/editor/tasks#_output-behavior
 const tasksJSONTemplate = `
 {
   "version": "2.0.0",
   "presentation": {
     "echo": false,
-    "reveal": "always",
-    "focus": true,
-	"open": true,
+    "reveal": "never",
+    "focus": false,
     "panel": "dedicated",
     "showReuseMessage": true
   },
   "tasks": [
     {
-      "label": "Terminatel",
+      "label": "Terminate",
       "dependsOn": [
         "Terminal"
       ],
@@ -69,7 +68,7 @@ const tasksJSONTemplate = `
       "options": {
         "shell": {
           "executable": "bash",
-		  "args": ["-l", "-c", "bash"]
+          "args": ["-l", "-c", "bash"]
         }
       },
       "isBackground": true,
@@ -84,7 +83,7 @@ func run(options Options) {
 
 	// Check if folder path is provided
 	if folderPath == "" {
-		fmt.Println("Please provide a folder path using the -folder flag.")
+		slog.Error("Folder path is required. Please provide a folder path using the -folder flag.")
 		os.Exit(1)
 	}
 
@@ -92,7 +91,7 @@ func run(options Options) {
 	vscodePath := folderPath + "/.vscode"
 	err := os.MkdirAll(vscodePath, 0o755)
 	if err != nil {
-		fmt.Printf("Error creating .vscode folder: %v\n", err)
+		slog.Error("Error creating .vscode folder", "error", err)
 		os.Exit(1)
 	}
 
@@ -100,7 +99,7 @@ func run(options Options) {
 	filePath := vscodePath + "/tasks.json"
 	file, err := os.Create(filePath)
 	if err != nil {
-		fmt.Printf("Error creating tasks.json file: %v\n", err)
+		slog.Error("Error creating tasks.json file", "error", err)
 		os.Exit(1)
 	}
 	defer file.Close()
@@ -108,15 +107,15 @@ func run(options Options) {
 	// Use template to generate tasks.json content
 	tmpl, err := template.New("tasksJSON").Parse(tasksJSONTemplate)
 	if err != nil {
-		fmt.Printf("Error parsing template: %v\n", err)
+		slog.Error("Error parsing template", "error", err)
 		os.Exit(1)
 	}
 
 	err = tmpl.Execute(file, nil)
 	if err != nil {
-		fmt.Printf("Error executing template: %v\n", err)
+		slog.Error("Error executing template", "error", err)
 		os.Exit(1)
 	}
 
-	fmt.Printf("tasks.json file successfully created at %s\n", filePath)
+	slog.Info("tasks.json file successfully created at", "path", filePath)
 }
