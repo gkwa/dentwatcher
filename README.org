@@ -1,0 +1,14 @@
+* dentwatcher
+
+** summary
+
+This is a description of project dentwatcher.
+
+** usage
+
+Example:
+#+begin_example
+make test
+./dentwatcher --help
+./dentwatcher --log-level=debug
+#+end_example
