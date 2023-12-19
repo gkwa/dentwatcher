@@ -5,6 +5,7 @@ import (
 	"html/template"
 	"log/slog"
 	"os"
+	"path/filepath"
 )
 
 type Options struct {
@@ -88,7 +89,7 @@ func run(options Options) {
 	}
 
 	// Create .vscode folder
-	vscodePath := folderPath + "/.vscode"
+	vscodePath := filepath.Join(folderPath, ".vscode")
 	err := os.MkdirAll(vscodePath, 0o755)
 	if err != nil {
 		slog.Error("Error creating .vscode folder", "error", err)
@@ -96,7 +97,7 @@ func run(options Options) {
 	}
 
 	// Create tasks.json file using template
-	filePath := vscodePath + "/tasks.json"
+	filePath := filepath.Join(vscodePath, "tasks.json")
 	file, err := os.Create(filePath)
 	if err != nil {
 		slog.Error("Error creating tasks.json file", "error", err)
